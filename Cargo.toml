@@ -1,4 +1,3 @@
-workspace = { members = [ "tempermper","test"] }
 [package]
 name = "gen95"
 version = "0.1.0"
