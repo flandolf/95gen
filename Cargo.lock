@@ -1296,6 +1296,7 @@ version = "0.1.0"
 dependencies = [
  "catppuccin-egui",
  "eframe",
+ "egui 0.26.2",
  "open",
  "rand",
 ]

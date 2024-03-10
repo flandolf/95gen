@@ -1,15 +1,9 @@
-// Export
-//  - windowsgen::generate_windows
-//  - windowsgen::generate_office
-//  - windowsgen::generate_key_95
-
 use rand::Rng;
 
 pub fn generate_key_95() -> String {
     let day = rand::thread_rng().gen_range(1..366);
     let years_allowed = ["95", "96", "97", "98", "99", "00", "01", "02", "03"];
     let year = years_allowed[rand::thread_rng().gen_range(0..years_allowed.len())];
-    println!("Year: {}", year);
     let algodigits = gen_algo_key();
     let randomend = rand::thread_rng().gen_range(10000..99999);
     if day < 10 {
@@ -23,33 +17,25 @@ pub fn generate_key_95() -> String {
 
 pub fn verify_win95(key: &str) -> bool {
     let key: Vec<&str> = key.split("-").collect();
-    let day = key[0].get(0..3).unwrap().parse::<i32>().unwrap();
-    let year = key[0].get(3..5).unwrap().parse::<i32>().unwrap();
-    let algo = key[2];
+    let day: i32 = key[0].get(0..3).unwrap().parse::<i32>().unwrap();
+    let year: i32 = key[0].get(3..5).unwrap().parse::<i32>().unwrap();
+    let algo: &str = key[2];
 
     let years_allowed = [95, 96, 97, 98, 99, 00, 01, 02, 03];
 
     if !years_allowed.contains(&year) {
-        println!("Year is not in the allowed range");
         return false;
     }
 
-    println!("Day: {}\nYear: {}\nAlgo: {}", day, year, algo);
-
-    if day <= 1 || day >= 365 {
-        println!("Day is out of range");
+    if day < 0 || day > 366 {
         return false;
     }
 
     let mut sum = 0;
     for algo in algo.chars() {
-        print!("{} +", algo);
         sum += algo.to_digit(10).unwrap();
     }
-    println!(" = {}", sum);
-    println!("{} / 7 = {}", sum, sum / 7);
     if sum % 7 != 0 {
-        println!("Algo sum is not divisible by 7");
         return false;
     }
 
@@ -62,12 +48,10 @@ pub fn verify_office95(key: &str) -> bool {
     let next_seven_digits = key[1];
 
     if first_three_digits.len() != 3 {
-        println!("First three digits are not 3 characters long");
         return false;
     }
 
     if next_seven_digits.len() != 7 {
-        println!("Next seven digits are not 7 characters long");
         return false;
     }
 
@@ -82,16 +66,13 @@ pub fn verify_office95(key: &str) -> bool {
         || first_three_digits == 888
         || first_three_digits == 999
     {
-        println!("First three digits are not valid");
         return false;
     }
 
-    if next_seven_digits % 21 != 0 {
-        println!("Next seven digits are not divisible by 21");
+    if sum_of_digits(next_seven_digits) % 7 != 0 {
         return false;
     }
 
-    println!("Key is valid");
     return true;
 }
 
@@ -112,18 +93,16 @@ pub fn generate_key_office95() -> String {
         }
     };
 
-    // Generate a random 7-digit number divisible by 21
-    let next_seven_digits: u32 = loop {
+    let next_seven_digits: i32 = loop {
         let num = rng.gen_range(1000000..10000000);
-        if num % 21 == 0 {
+        if sum_of_digits(num) % 7 == 0 {
             break num;
         }
     };
 
-    // Format the key
-    let key = format!("{:03}-{}", first_three_digits, next_seven_digits);
+    let key: String = format!("{:03}-{}", first_three_digits, next_seven_digits);
 
-    key
+    return key;
 }
 
 fn gen_algo_key() -> i32 {
@@ -134,10 +113,20 @@ fn gen_algo_key() -> i32 {
         sum = sum_of_digits(random_number);
 
         if sum % 7 == 0 {
-            return random_number;
+            // check if last digit is 8, 9 or 0
+            let last_digit = random_number % 10;
+            if last_digit == 8 || last_digit == 9 || last_digit == 0 {
+                // regen
+                continue;
+            } else {
+                return random_number;
+            }
         }
     }
 }
+
+
+
 fn generate_six_digit_number() -> i32 {
     let mut rng = rand::thread_rng();
     return rng.gen_range(100_000..1_000_000);
@@ -147,6 +136,6 @@ fn sum_of_digits(number: i32) -> i32 {
     number
         .to_string()
         .chars()
-        .map(|c| c.to_digit(10).unwrap() as i32) // Convert to i32
+        .map(|c| c.to_digit(10).unwrap() as i32)
         .sum()
 }
