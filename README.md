@@ -1,5 +1,11 @@
 # 95Gen 🔑
 
+![GitHub License](https://img.shields.io/github/license/flandolf/95gen?style=for-the-badge)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/flandolf/95gen?style=for-the-badge)
+![GitHub last commit](https://img.shields.io/github/last-commit/flandolf/95gen?style=for-the-badge)
+
+
+
 This is a Windows 95 + Office 95 Keygen based on public methods, all displayed in a simple UI made in Rust.
 
 ## Advantages
