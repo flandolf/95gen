@@ -1,6 +1,6 @@
 [package]
 name = "gen95"
-version = "0.1.0"
+version = "1.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -12,3 +12,4 @@ eframe = "0.26.2"
 egui = "0.26.2"
 open = "5.1.2"
 image = "0.25.0"
+rfd = "0.14.0"

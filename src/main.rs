@@ -1,19 +1,22 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use eframe::{
-    egui::{self, Label, RichText, ScrollArea}, Theme
+    egui::{self, Label, RichText, ScrollArea},
+    Theme,
 };
 use egui::IconData;
+use image::GenericImageView;
 
+mod icon;
 mod windowsgen;
-
 fn main() -> Result<(), eframe::Error> {
-
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([640.0, 480.0]).with_icon(load_icon(".\\assets\\icon.png")),
+        viewport: egui::ViewportBuilder::default()
+            .with_inner_size([640.0, 480.0])
+            .with_icon(load_icon()),
         default_theme: Theme::Dark,
         follow_system_theme: false,
-        persist_window:true,
+        persist_window: true,
         ..Default::default()
     };
 
@@ -24,18 +27,16 @@ fn main() -> Result<(), eframe::Error> {
     )
 }
 
-fn load_icon(path: &str) -> IconData {
+fn load_icon() -> IconData {
     let (icon_rgba, icon_width, icon_height) = {
-        let image = image::open(path)
-            .expect("Failed to open icon path")
-            .into_rgba8();
+        let image = image::load_from_memory(icon::ICON).unwrap();
         let (width, height) = image.dimensions();
-        let rgba = image.into_raw();
+        let rgba = image.into_rgba8();
         (rgba, width, height)
     };
 
     IconData {
-        rgba: icon_rgba,
+        rgba: icon_rgba.to_vec(),
         width: icon_width,
         height: icon_height,
     }
@@ -118,6 +119,49 @@ impl eframe::App for MainApp {
                             KeyType::Office95 => Some(windowsgen::verify_office95(&key_info.key)),
                         };
                     }
+                }
+
+                if ui.button("save").clicked() {
+
+                    if self.keys.is_empty() {
+                        return;
+                    }
+
+                    let mut file_content = String::new();
+                    for key_info in &self.keys {
+                        file_content.push_str(&key_info.key);
+                        file_content.push('\n');
+                    }
+
+                    let files = rfd::FileDialog::new()
+                        .add_filter("text", &["txt"])
+                        .set_directory("/")
+                        .save_file();
+
+                    if let Some(file) = files {
+                        std::fs::write(file, &file_content).unwrap();
+                    }
+                }
+
+                if ui.button("load").clicked() {
+                    let files = rfd::FileDialog::new()
+                        .add_filter("text", &["txt"])
+                        .set_directory("/")
+                        .pick_file();
+
+                    if let Some(file) = files {
+                        let file_content = std::fs::read_to_string(file).unwrap();
+                        self.keys.clear();
+                        for line in file_content.lines() {
+                            self.keys.push(KeyInfo {
+                                key: line.to_string(),
+                                verified: None,
+                            });
+                        }
+                    }
+                }
+                if ui.button("clear").clicked() {
+                    self.keys.clear();
                 }
             });
 
