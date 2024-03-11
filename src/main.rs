@@ -1,17 +1,19 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use eframe::{
-    egui::{self, Label, RichText, ScrollArea},
-    Theme,
+    egui::{self, Label, RichText, ScrollArea}, Theme
 };
+use egui::IconData;
 
 mod windowsgen;
 
 fn main() -> Result<(), eframe::Error> {
+
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([640.0, 480.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([640.0, 480.0]).with_icon(load_icon(".\\assets\\icon.png")),
         default_theme: Theme::Dark,
         follow_system_theme: false,
+        persist_window:true,
         ..Default::default()
     };
 
@@ -20,6 +22,23 @@ fn main() -> Result<(), eframe::Error> {
         options,
         Box::new(|_cc| Box::<MainApp>::default()),
     )
+}
+
+fn load_icon(path: &str) -> IconData {
+    let (icon_rgba, icon_width, icon_height) = {
+        let image = image::open(path)
+            .expect("Failed to open icon path")
+            .into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+
+    IconData {
+        rgba: icon_rgba,
+        width: icon_width,
+        height: icon_height,
+    }
 }
 
 #[derive(Clone, Copy, PartialEq)]
